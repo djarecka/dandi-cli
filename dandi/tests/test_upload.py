@@ -245,9 +245,7 @@ def test_enormous_upload_breaks_girder(
             pass
 
 
-def test_new_upload_download(
-    local_dandi_api, mocker, monkeypatch, organized_nwb_dir, tmp_path
-):
+def test_new_upload_download(local_dandi_api, monkeypatch, organized_nwb_dir, tmp_path):
     client = DandiAPIClient(
         api_url=local_dandi_api["instance"].api, token=local_dandi_api["api_key"]
     )
@@ -268,3 +266,28 @@ def test_new_upload_download(
     nwb_file2, = tmp_path.glob(f"{dandiset_id}{os.sep}*{os.sep}*.nwb")
     assert nwb_file.name == nwb_file2.name
     assert nwb_file.parent.name == nwb_file2.parent.name
+
+
+def test_new_upload_extant_existing(
+    local_dandi_api, monkeypatch, organized_nwb_dir, tmp_path
+):
+    client = DandiAPIClient(
+        api_url=local_dandi_api["instance"].api, token=local_dandi_api["api_key"]
+    )
+    with client.session():
+        r = client.create_dandiset("Test Dandiset", {})
+    dandiset_id = r["identifier"]
+    nwb_file, = organized_nwb_dir.glob(f"*{os.sep}*.nwb")
+    (organized_nwb_dir / dandiset_metadata_file).write_text(
+        f"identifier: '{dandiset_id}'\n"
+    )
+    monkeypatch.chdir(organized_nwb_dir)
+    monkeypatch.setenv("DANDI_API_KEY", local_dandi_api["api_key"])
+    upload(paths=[], dandi_instance=local_dandi_api["instance_id"], devel_debug=True)
+    with pytest.raises(FileExistsError):
+        upload(
+            paths=[],
+            dandi_instance=local_dandi_api["instance_id"],
+            devel_debug=True,
+            existing="error",
+        )
