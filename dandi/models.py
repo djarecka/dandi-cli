@@ -1,4 +1,5 @@
 from enum import Enum
+import json
 from pydantic import BaseModel, ByteSize, Field, AnyUrl, EmailStr, validator
 from typing import Dict, List, Union, Optional, Any, Type
 from datetime import date
@@ -562,6 +563,14 @@ class CommonModel(DandiBaseModel):
     wasGeneratedBy: Optional[Union[Activity, AnyUrl]] = Field(
         None, readOnly=True, nskey="prov"
     )
+
+    def asdict(self):
+        """
+        Recursively convert the instance to a `dict` of JSONable values,
+        including converting enum values to strings.  Unset and `None` fields
+        are omitted.
+        """
+        return json.loads(self.json(exclude_unset=True, exclude_none=True))
 
 
 class DandiMeta(CommonModel):

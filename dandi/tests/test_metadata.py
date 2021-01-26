@@ -1,5 +1,4 @@
 from datetime import datetime, timedelta
-import json
 from dateutil.tz import tzutc
 import pytest
 from ..metadata import (
@@ -204,10 +203,36 @@ def test_metadata2asset(schema_dir):
         ],
         contentUrl=None,
     )
-    # We need to convert `data` to a `dict` this way instead of with `.dict()`
-    # so that enums will be converted to strings.
-    data_as_dict = json.loads(data.json(exclude_unset=True, exclude_none=True))
-    validate_asset_json(data_as_dict, schema_dir)
+    data_asdict = data.asdict()
+    assert data_asdict == dict(
+        schemaVersion="1.0.0-rc1",
+        identifier="ABC123",
+        keywords=["test", "sample", "example", "test-case"],
+        access=[dict(status="dandi:Open")],
+        repository="https://dandiarchive.org/",
+        contentSize=69105,
+        encodingFormat="application/x-nwb",
+        digest=dict(
+            value="783ad2afe455839e5ab2fa659861f58a423fd17f", cryptoType="dandi:sha1"
+        ),
+        wasDerivedFrom=[dict(identifier="tissue03")],
+        wasAttributedTo=[
+            dict(
+                identifier="a1b2c3",
+                age=dict(unitText="Years from birth", value="P170DT12212S"),
+                sex=dict(
+                    identifier="http://purl.obolibrary.org/obo/PATO_0000384",
+                    name="Male",
+                ),
+                genotype="Typical",
+                species=dict(
+                    identifier="http://purl.obolibrary.org/obo/NCBITaxon_9606",
+                    name="Human",
+                ),
+            )
+        ],
+    )
+    validate_asset_json(data_asdict, schema_dir)
 
 
 def test_metadata2asset_simple1(schema_dir):
@@ -285,10 +310,22 @@ def test_metadata2asset_simple1(schema_dir):
         wasAttributedTo=[],
         contentUrl=None,
     )
-    # We need to convert `data` to a `dict` this way instead of with `.dict()`
-    # so that enums will be converted to strings.
-    data_as_dict = json.loads(data.json(exclude_unset=True, exclude_none=True))
-    validate_asset_json(data_as_dict, schema_dir)
+    data_asdict = data.asdict()
+    assert data_asdict == dict(
+        schemaVersion="1.0.0-rc1",
+        identifier="identifier1",
+        keywords=["keyword1", "keyword 2"],
+        access=[dict(status="dandi:Open")],
+        repository="https://dandiarchive.org/",
+        contentSize=69105,
+        encodingFormat="application/x-nwb",
+        digest=dict(
+            value="783ad2afe455839e5ab2fa659861f58a423fd17f", cryptoType="dandi:sha1"
+        ),
+        wasDerivedFrom=[dict(identifier="tissue42")],
+        wasAttributedTo=[],
+    )
+    validate_asset_json(data_asdict, schema_dir)
 
 
 def test_dandimeta_migration(schema_dir):
@@ -1265,7 +1302,421 @@ def test_dandimeta_migration(schema_dir):
         version=None,
         doi=None,
     )
-    # We need to convert `data` to a `dict` this way instead of with `.dict()`
-    # so that enums will be converted to strings.
-    data_as_dict = json.loads(data.json(exclude_unset=True, exclude_none=True))
-    validate_dandiset_json(data_as_dict, schema_dir)
+    data_asdict = data.asdict()
+    assert data_asdict == dict(
+        access=[dict(status="dandi:Open", email="nand.chandravadia@cshs.org")],
+        relatedResource=[
+            dict(
+                identifier="DOI:10.17605/OSF.IO/HV7JA",
+                name=(
+                    "A NWB-based Dataset and Processing Pipeline of Human"
+                    " Single-Neuron Activity During a Declarative Memory Task"
+                ),
+                repository="Open Science Framework",
+                url="https://osf.io/hv7ja/",
+                relation="dandi:IsDerivedFrom",
+            ),
+            dict(
+                identifier="DOI:10.1038/s41597-020-0415-9",
+                relation="dandi:IsDescribedBy",
+                url="https://www.nature.com/articles/s41597-020-0415-9",
+            ),
+        ],
+        about=[{"identifier": "MTL", "name": "Medial Temporal Lobe"}],
+        contributor=[
+            dict(
+                roleName=[
+                    "dandi:Author",
+                    "dandi:ContactPerson",
+                    "dandi:DataCurator",
+                    "dandi:DataManager",
+                    "dandi:FormalAnalysis",
+                    "dandi:Investigation",
+                    "dandi:Maintainer",
+                    "dandi:Methodology",
+                    "dandi:ProjectLeader",
+                    "dandi:ProjectManager",
+                    "dandi:ProjectMember",
+                    "dandi:Researcher",
+                    "dandi:Software",
+                    "dandi:Validation",
+                    "dandi:Visualization",
+                ],
+                identifier=dict(value="0000-0003-0161-4007", propertyID="ORCID"),
+                email="nand.chandravadia@cshs.org",
+                name="Chandravadia, Nand",
+                affiliation=[
+                    dict(
+                        name=(
+                            "Department of Neurosurgery, Cedars-Sinai Medical"
+                            " Center, Los Angeles, CA, USA"
+                        ),
+                        includeInCitation=False,
+                    )
+                ],
+                includeInCitation=True,
+            ),
+            dict(
+                roleName=[
+                    "dandi:Author",
+                    "dandi:Methodology",
+                    "dandi:ProjectMember",
+                    "dandi:Software",
+                    "dandi:Validation",
+                ],
+                identifier=dict(),
+                email="liang134@mail.chapman.edu",
+                name="Liang, Dehua",
+                affiliation=[
+                    dict(
+                        name=(
+                            "Institute for Interdisciplinary Brain and"
+                            " Behavioral Sciences, Crean College of Health and"
+                            " Behavioral Sciences, Schmid College of Science"
+                            " and Technology, Chapman University, Orange, CA,"
+                            " USA"
+                        ),
+                        includeInCitation=False,
+                    )
+                ],
+                includeInCitation=True,
+            ),
+            dict(
+                roleName=[
+                    "dandi:Author",
+                    "dandi:DataCollector",
+                    "dandi:ProjectMember",
+                    "dandi:Validation",
+                ],
+                identifier=dict(value="0000-0002-4319-7689", propertyID="ORCID"),
+                email="Andrea.Schjetan@uhnresearch.ca",
+                name="Schjetnan, Andrea Gomez Palacio",
+                affiliation=[
+                    dict(
+                        name="Krembil Brain Institute, Toronto Western Hospital, Toronto, Canada",
+                        includeInCitation=False,
+                    )
+                ],
+                includeInCitation=True,
+            ),
+            dict(
+                roleName=[
+                    "dandi:Author",
+                    "dandi:DataCurator",
+                    "dandi:ProjectMember",
+                    "dandi:Validation",
+                ],
+                identifier=dict(value="0000-0002-9207-7069", propertyID="ORCID"),
+                email="april.carlson@tufts.edu",
+                name="Carlson, April",
+                affiliation=[
+                    dict(
+                        name=(
+                            "Department of Neurosurgery, Cedars-Sinai Medical"
+                            " Center, Los Angeles, CA, USA"
+                        ),
+                        includeInCitation=False,
+                    )
+                ],
+                includeInCitation=True,
+            ),
+            dict(
+                roleName=[
+                    "dandi:Author",
+                    "dandi:DataCollector",
+                    "dandi:ProjectMember",
+                    "dandi:Validation",
+                ],
+                email="mailyscm.faraut@gmail.com",
+                name="Faraut, Mailys",
+                affiliation=[
+                    dict(
+                        name=(
+                            "Department of Neurosurgery, Cedars-Sinai Medical"
+                            " Center, Los Angeles, CA, USA"
+                        ),
+                        includeInCitation=False,
+                    )
+                ],
+                includeInCitation=True,
+            ),
+            dict(
+                roleName=["dandi:Author", "dandi:ProjectMember", "dandi:Validation"],
+                email="Jeffrey.Chung@cshs.org",
+                name="Chung, Jeffrey M.",
+                affiliation=[
+                    dict(
+                        name=(
+                            "Department of Neurology, Cedars-Sinai Medical"
+                            " Center, Los Angeles, CA, USA"
+                        ),
+                        includeInCitation=False,
+                    )
+                ],
+                includeInCitation=True,
+            ),
+            dict(
+                roleName=["dandi:Author", "dandi:ProjectMember", "dandi:Validation"],
+                email="Chrystal.Reed@csmc.edu",
+                name="Reed, Chrystal M.",
+                affiliation=[
+                    dict(
+                        name=(
+                            "Department of Neurology, Cedars-Sinai Medical"
+                            " Center, Los Angeles, CA, USA"
+                        ),
+                        includeInCitation=False,
+                    )
+                ],
+                includeInCitation=True,
+            ),
+            dict(
+                roleName=[
+                    "dandi:Author",
+                    "dandi:Software",
+                    "dandi:ProjectMember",
+                    "dandi:Validation",
+                ],
+                email="ben.dichter@gmail.com",
+                name="Dichter, Ben",
+                affiliation=[
+                    dict(
+                        name=(
+                            "Biological Systems & Engineering Division,"
+                            " Lawrence Berkeley National Laboratory, Berkeley,"
+                            " CA, USA"
+                        ),
+                        includeInCitation=False,
+                    ),
+                    dict(
+                        name="Department of Neurosurgery, Stanford University, Stanford, CA, USA",
+                        includeInCitation=False,
+                    ),
+                ],
+                includeInCitation=True,
+            ),
+            dict(
+                roleName=[
+                    "dandi:Author",
+                    "dandi:Conceptualization",
+                    "dandi:ProjectMember",
+                    "dandi:Validation",
+                ],
+                email="maoz.uri@gmail.com",
+                name="Maoz, Uri",
+                affiliation=[
+                    dict(
+                        name=(
+                            "Institute for Interdisciplinary Brain and"
+                            " Behavioral Sciences, Crean College of Health and"
+                            " Behavioral Sciences, Schmid College of Science"
+                            " and Technology, Chapman University, Orange, CA,"
+                            " USA"
+                        ),
+                        includeInCitation=False,
+                    ),
+                    dict(
+                        name=(
+                            "Division of Biology and Biological Engineering,"
+                            " California Institute of Technology, Pasadena, CA,"
+                            " USA"
+                        ),
+                        includeInCitation=False,
+                    ),
+                ],
+                includeInCitation=True,
+            ),
+            dict(
+                roleName=["dandi:Author", "dandi:ProjectMember", "dandi:Validation"],
+                email="suneil.kalia@uhn.ca",
+                name="Kalia, Suneil K.",
+                affiliation=[
+                    dict(
+                        name=(
+                            "Division of Neurosurgery, Department of Surgery,"
+                            " University of Toronto, Toronto, Canada"
+                        ),
+                        includeInCitation=False,
+                    ),
+                    dict(
+                        name="Krembil Brain Institute, Toronto Western Hospital, Toronto, Canada",
+                        includeInCitation=False,
+                    ),
+                ],
+                includeInCitation=True,
+            ),
+            dict(
+                roleName=["dandi:Author", "dandi:ProjectMember", "dandi:Validation"],
+                email="Taufik.Valiante@uhn.ca",
+                name="Valiante, Taufik A.",
+                affiliation=[
+                    dict(
+                        name="Krembil Brain Institute, Toronto Western Hospital, Toronto, Canada",
+                        includeInCitation=False,
+                    ),
+                    dict(
+                        name=(
+                            "Division of Neurosurgery, Department of Surgery,"
+                            " University of Toronto, Toronto, Canada"
+                        ),
+                        includeInCitation=False,
+                    ),
+                ],
+                includeInCitation=True,
+            ),
+            dict(
+                roleName=["dandi:Author", "dandi:ProjectMember", "dandi:Validation"],
+                email="Adam.Mamelak@cshs.org",
+                name="Mamelak, Adam N.",
+                affiliation=[
+                    dict(
+                        name=(
+                            "Department of Neurosurgery, Cedars-Sinai Medical"
+                            " Center, Los Angeles, CA, USA"
+                        ),
+                        includeInCitation=False,
+                    )
+                ],
+                includeInCitation=True,
+            ),
+            dict(
+                roleName=[
+                    "dandi:Author",
+                    "dandi:Conceptualization",
+                    "dandi:FundingAcquisition",
+                    "dandi:ProjectMember",
+                    "dandi:Resources",
+                    "dandi:Software",
+                    "dandi:Supervision",
+                    "dandi:Validation",
+                ],
+                identifier=dict(value="0000-0002-9207-7069", propertyID="ORCID"),
+                email="Ueli.Rutishauser@cshs.org",
+                name="Rutishauser, Ueli",
+                affiliation=[
+                    dict(
+                        name=(
+                            "Department of Neurosurgery, Cedars-Sinai Medical"
+                            " Center, Los Angeles, CA, USA"
+                        ),
+                        includeInCitation=False,
+                    ),
+                    dict(
+                        name=(
+                            "Department of Neurology, Cedars-Sinai Medical"
+                            " Center, Los Angeles, CA, USA"
+                        ),
+                        includeInCitation=False,
+                    ),
+                    dict(
+                        name=(
+                            "Division of Biology and Biological Engineering,"
+                            " California Institute of Technology, Pasadena, CA,"
+                            " USA"
+                        ),
+                        includeInCitation=False,
+                    ),
+                    dict(
+                        name=(
+                            "Computational and Neural Systems Program,"
+                            " California Institute of Technology, Pasadena, CA,"
+                            " USA"
+                        ),
+                        includeInCitation=False,
+                    ),
+                    dict(
+                        name=(
+                            "Center for Neural Science and Medicine, Department"
+                            " of Biomedical Science, Cedars-Sinai Medical"
+                            " Center, Los Angeles, CA, USA"
+                        ),
+                        includeInCitation=False,
+                    ),
+                ],
+                includeInCitation=True,
+            ),
+            dict(
+                awardNumber="U01NS103792",
+                name="Stroke, National Institute of Neurological Disorders and",
+                roleName=["dandi:Sponsor"],
+                includeInCitation=False,
+            ),
+            dict(
+                awardNumber="1554105",
+                name="Foundation, National Science",
+                roleName=["dandi:Sponsor"],
+                includeInCitation=False,
+            ),
+            dict(
+                awardNumber="R01MH110831",
+                name="Health, National Institute of Mental",
+                roleName=["dandi:Sponsor"],
+                includeInCitation=False,
+            ),
+            dict(
+                name="Neuroscience, McKnight Endowment for",
+                roleName=["dandi:Sponsor"],
+                includeInCitation=True,
+            ),
+            dict(
+                name=(
+                    "Foundation, NARSAD Young Investigator grant from the Brain"
+                    " & Behavior Research"
+                ),
+                roleName=["dandi:Sponsor"],
+                includeInCitation=True,
+            ),
+            dict(
+                name="Foundation, Kavli",
+                roleName=["dandi:Sponsor"],
+                includeInCitation=True,
+            ),
+            dict(
+                awardNumber="U19NS104590",
+                name="initiative, BRAIN",
+                roleName=["dandi:Sponsor"],
+                includeInCitation=False,
+            ),
+        ],
+        description=(
+            "A challenge for data sharing in systems neuroscience is the"
+            " multitude of different data formats used. Neurodata Without"
+            " Borders: Neurophysiology 2.0 (NWB:N) has emerged as a"
+            " standardized data format for the storage of cellular-level data"
+            " together with meta-data, stimulus information, and behavior. A"
+            " key next step to facilitate NWB:N adoption is to provide easy to"
+            " use processing pipelines to import/export data from/to NWB:N."
+            " Here, we present a NWB-formatted dataset of 1863 single neurons"
+            " recorded from the medial temporal lobes of 59 human subjects"
+            " undergoing intracranial monitoring while they performed a"
+            " recognition memory task. We provide code to analyze and"
+            " export/import stimuli, behavior, and electrophysiological"
+            " recordings to/from NWB in both MATLAB and Python. The data files"
+            " are NWB:N compliant, which affords interoperability between"
+            " programming languages and operating systems. This combined data"
+            " and code release is a case study for how to utilize NWB:N for"
+            " human single-neuron recordings and enables easy re-use of this"
+            " hard-to-obtain data for both teaching and research on the"
+            " mechanisms of human memory."
+        ),
+        identifier=dict(value="000004", propertyID="DANDI"),
+        keywords=[
+            "cognitive neuroscience",
+            "data standardization",
+            "decision making",
+            "declarative memory",
+            "neurophysiology",
+            "neurosurgery",
+            "NWB",
+            "open source",
+            "single-neurons",
+        ],
+        license=["dandi:CCBY40"],
+        name=(
+            "A NWB-based dataset and processing pipeline of human single-neuron"
+            " activity during a declarative memory task"
+        ),
+        schemaVersion="1.0.0-rc1",
+        repository="https://dandiarchive.org/",
+    )
+    validate_dandiset_json(data_asdict, schema_dir)
